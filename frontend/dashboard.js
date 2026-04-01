@@ -1,168 +1,115 @@
 const API_URL = "https://notesvault-ho8t.onrender.com/api/notes";
 const token = localStorage.getItem("token");
 
-// 1. Auth Check (Sabse Pehle)
-if (!token) {
-    window.location.href = "index.html";
-}
+if (!token) window.location.href = "index.html";
 
 let allNotes = [];
 let currentNoteId = null;
 let currentFilter = 'all';
 
-// 2. Selectors
 const notesGrid = document.getElementById("notesGrid");
 const searchInput = document.getElementById("searchInput");
 const newNoteBtn = document.getElementById("newNoteBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const noteModal = document.getElementById("noteModal");
-const modalTitle = document.getElementById("modalTitle");
-const modalContent = document.getElementById("modalContent");
-const saveNoteBtn = document.getElementById("saveNoteBtn");
-const closeModalBtn = document.getElementById("closeModalBtn");
-const deleteNoteBtn = document.getElementById("deleteNoteBtn");
-const pinNoteBtn = document.getElementById("pinNoteBtn");
+const menuDropdown = document.getElementById("menuDropdown");
+const menuBtn = document.getElementById("menuBtn");
 
-// 3. Logout Logic (FIXED)
-logoutBtn.onclick = () => {
-    localStorage.removeItem("token");
-    window.location.href = "index.html";
-};
-
-// 4. Fetching Logic
-async function fetchNotes() {
-    try {
-        const res = await fetch(API_URL, { 
-            headers: { "Authorization": `Bearer ${token}` } 
-        });
-        if (!res.ok) throw new Error("Token expired");
-        allNotes = await res.json();
-        renderNotes();
-    } catch (err) {
-        console.error(err);
-        localStorage.removeItem("token");
-        window.location.href = "index.html";
-    }
-}
-
-// 5. Sidebar Navigation
-document.getElementById("viewAll").onclick = () => { currentFilter = 'all'; updateActiveNav("viewAll"); renderNotes(); };
-document.getElementById("viewPinned").onclick = () => { currentFilter = 'pinned'; updateActiveNav("viewPinned"); renderNotes(); };
-document.getElementById("viewTrash").onclick = () => { currentFilter = 'trash'; updateActiveNav("viewTrash"); renderNotes(); };
-
-function updateActiveNav(id) {
+// Navigation
+const setFilter = (filter, id) => {
+    currentFilter = filter;
     document.querySelectorAll(".nav-links li").forEach(li => li.classList.remove("active"));
     document.getElementById(id).classList.add("active");
+    renderNotes();
+};
+document.getElementById("viewAll").onclick = () => setFilter('all', 'viewAll');
+document.getElementById("viewPinned").onclick = () => setFilter('pinned', 'viewPinned');
+document.getElementById("viewTrash").onclick = () => setFilter('trash', 'viewTrash');
+
+// Dropdown Toggle
+menuBtn.onclick = (e) => {
+    e.stopPropagation();
+    menuDropdown.classList.toggle("active");
+};
+window.onclick = () => menuDropdown.classList.remove("active");
+
+async function fetchNotes() {
+    try {
+        const res = await fetch(API_URL, { headers: { "Authorization": `Bearer ${token}` } });
+        allNotes = await res.json();
+        renderNotes();
+    } catch (err) { console.error(err); }
 }
 
-// 6. Rendering Logic
 function renderNotes() {
     notesGrid.innerHTML = "";
     const query = searchInput.value.toLowerCase();
-
-    let filtered = allNotes.filter(n => {
-        const matchesSearch = (n.title && n.title.toLowerCase().includes(query)) || (n.content && n.content.toLowerCase().includes(query));
+    
+    const filtered = allNotes.filter(n => {
+        const matchesSearch = (n.title && n.title.toLowerCase().includes(query)) || n.content.toLowerCase().includes(query);
         if (!matchesSearch) return false;
-
         if (currentFilter === 'trash') return n.isDeleted;
         if (currentFilter === 'pinned') return n.isPinned && !n.isDeleted;
         return !n.isDeleted;
     });
 
-    if (filtered.length === 0) {
-        notesGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-dim); margin-top: 2rem;">No notes found.</p>`;
-        return;
-    }
-
     filtered.forEach(note => {
         const card = document.createElement("div");
         card.classList.add("note-card");
         if (note.isPinned) card.classList.add("pinned-card");
-        
-        card.innerHTML = `
-            ${note.isPinned ? '<span class="pin-tag">📌 Pinned</span>' : ''}
-            <h3>${note.title || "Untitled"}</h3>
-            <p>${note.content}</p>
-        `;
+        card.innerHTML = `${note.isPinned ? '<span class="pin-tag">📌 Pinned</span>' : ''}<h3>${note.title || 'Untitled'}</h3><p>${note.content}</p>`;
         card.onclick = () => openModal(note);
         notesGrid.appendChild(card);
     });
 }
 
-// 7. Modal Function (FIXED for Create/Edit)
 function openModal(note = null) {
-    if (note) {
-        currentNoteId = note._id;
-        modalTitle.value = note.title || "";
-        modalContent.value = note.content || "";
-        
-        deleteNoteBtn.style.display = "block";
-        if (note.isDeleted) {
-            deleteNoteBtn.innerHTML = "♻️ Restore";
-            saveNoteBtn.style.display = "none";
-            pinNoteBtn.style.display = "none";
-        } else {
-            deleteNoteBtn.innerHTML = "🗑️";
-            saveNoteBtn.style.display = "block";
-            pinNoteBtn.style.display = "block";
-            pinNoteBtn.style.color = note.isPinned ? "var(--accent-purple)" : "white";
-        }
+    currentNoteId = note ? note._id : null;
+    document.getElementById("modalTitle").value = note ? note.title || "" : "";
+    document.getElementById("modalContent").value = note ? note.content : "";
+    
+    const deleteBtn = document.getElementById("deleteNoteBtn");
+    const pinBtn = document.getElementById("pinNoteBtn");
+    const saveBtn = document.getElementById("saveNoteBtn");
+
+    if (note && note.isDeleted) {
+        deleteBtn.innerHTML = "♻️ Restore Note";
+        pinBtn.style.display = "none";
+        saveBtn.style.display = "none";
     } else {
-        // Naya Note
-        currentNoteId = null;
-        modalTitle.value = "";
-        modalContent.value = "";
-        deleteNoteBtn.style.display = "none";
-        saveNoteBtn.style.display = "block";
-        pinNoteBtn.style.display = "none";
+        deleteBtn.innerHTML = "🗑️ Move to Trash";
+        deleteBtn.style.display = note ? "block" : "none";
+        pinBtn.style.display = note ? "block" : "none";
+        pinBtn.innerHTML = (note && note.isPinned) ? "📍 Unpin Note" : "📌 Pin Note";
+        saveBtn.style.display = "block";
     }
     noteModal.classList.add("active");
 }
 
-// 8. Event Listeners for Buttons
-newNoteBtn.onclick = () => openModal(); // Create button fix
-closeModalBtn.onclick = () => noteModal.classList.remove("active");
-
-saveNoteBtn.onclick = async () => {
-    const title = modalTitle.value.trim();
-    const content = modalContent.value.trim();
-    if (!content) return alert("Content toh likho bhai!");
-
-    const method = currentNoteId ? "PUT" : "POST";
+document.getElementById("saveNoteBtn").onclick = async () => {
     const url = currentNoteId ? `${API_URL}/${currentNoteId}` : API_URL;
-
-    const res = await fetch(url, {
-        method,
+    await fetch(url, {
+        method: currentNoteId ? "PUT" : "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ title, content })
+        body: JSON.stringify({ title: document.getElementById("modalTitle").value, content: document.getElementById("modalContent").value })
     });
-
-    if (res.ok) {
-        noteModal.classList.remove("active");
-        fetchNotes();
-    }
+    noteModal.classList.remove("active");
+    fetchNotes();
 };
 
-deleteNoteBtn.onclick = async () => {
-    if (!currentNoteId) return;
+document.getElementById("deleteNoteBtn").onclick = async () => {
     const note = allNotes.find(n => n._id === currentNoteId);
-    
-    // Toggle Trash logic
     const body = note.isDeleted ? { isDeleted: false, deletedAt: null } : { isDeleted: true, deletedAt: new Date() };
-
-    const res = await fetch(`${API_URL}/${currentNoteId}`, {
+    await fetch(`${API_URL}/${currentNoteId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(body)
     });
-
-    if (res.ok) {
-        noteModal.classList.remove("active");
-        fetchNotes();
-    }
+    noteModal.classList.remove("active");
+    fetchNotes();
 };
 
-pinNoteBtn.onclick = async () => {
+document.getElementById("pinNoteBtn").onclick = async () => {
     const note = allNotes.find(n => n._id === currentNoteId);
     await fetch(`${API_URL}/${currentNoteId}`, {
         method: "PUT",
@@ -173,5 +120,9 @@ pinNoteBtn.onclick = async () => {
     fetchNotes();
 };
 
+document.getElementById("closeModalBtn").onclick = () => noteModal.classList.remove("active");
+newNoteBtn.onclick = () => openModal();
 searchInput.oninput = renderNotes;
+logoutBtn.onclick = () => { localStorage.removeItem("token"); window.location.href = "index.html"; };
+
 fetchNotes();
