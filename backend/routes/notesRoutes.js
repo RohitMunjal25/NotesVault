@@ -46,5 +46,19 @@ router.delete("/:id", auth, async (req, res) => {
   }
   res.json({ msg: "Deleted" });
 });
+router.get("/share/:id", async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    
+    if (!note) {
+      return res.status(404).json({ msg: "Note not found or deleted" });
+    }
 
+    // Sirf title aur content bhej rahe hain security ke liye
+    res.json({ title: note.title, content: note.content });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
 module.exports = router;
