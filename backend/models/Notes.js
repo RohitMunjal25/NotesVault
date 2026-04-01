@@ -10,7 +10,16 @@ const noteSchema = new mongoose.Schema({
   isPinned: {
     type: Boolean,
     default: false
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date,
+    default: null
   }
 }, { timestamps: true });
+noteSchema.index({ "deletedAt": 1 }, { expireAfterSeconds: 1296000 });
 
 module.exports = mongoose.model("Notes", noteSchema);

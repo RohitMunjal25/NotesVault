@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NotesVault</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>NotesVault</h2>
+        <ul class="nav-links">
+            <li class="active" id="viewAll"><span>📂</span> All Notes</li>
+            <li id="viewPinned"><span>📌</span> Pinned</li>
+            <li id="viewTrash"><span>🗑️</span> Trash</li>
+        </ul>
+        <button id="newNoteBtn" class="new-note-btn">+ Create New Note</button>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" class="search-bar" placeholder="Search through your thoughts...">
+            </div>
+            <div class="user-profile">
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="notes-container">
+            <div class="notes-grid" id="notesGrid"></div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="noteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <input type="text" id="modalTitle" placeholder="Title" class="modal-title-input">
+                <div class="modal-actions">
+                    <button id="pinNoteBtn" class="icon-btn" title="Pin Note">📌</button>
+                    <button id="deleteNoteBtn" class="icon-btn delete-icon" title="Move to Trash">🗑️</button>
+                    <button id="closeModalBtn" class="icon-btn" title="Close">✕</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <textarea id="modalContent" placeholder="Start typing..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="saveNoteBtn" class="btn-save">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
