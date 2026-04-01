@@ -10,7 +10,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 body { background-color: var(--bg-dark); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-/* Sidebar & Topbar (Existing Styles) */
 .sidebar { width: 260px; background: var(--sidebar-bg); padding: 2rem 1.5rem; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.05); }
 .sidebar h2 { font-size: 1.5rem; margin-bottom: 2.5rem; color: white; }
 .nav-links { list-style: none; flex-grow: 1; }
@@ -23,7 +22,6 @@ body { background-color: var(--bg-dark); color: var(--text-main); display: flex;
 .search-bar { width: 400px; padding: 0.8rem 1.5rem; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; outline: none; }
 .logout-btn { background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 0.5rem 1.2rem; border-radius: 8px; cursor: pointer; }
 
-/* Notes Grid (Masonry Fix) */
 .notes-container { padding: 2rem 3rem; overflow-y: auto; height: 100%; }
 .notes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; align-items: start; }
 .note-card { background: var(--card-bg); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.3s; position: relative; }
@@ -31,31 +29,14 @@ body { background-color: var(--bg-dark); color: var(--text-main); display: flex;
 .pinned-card { border: 2px solid var(--accent-purple) !important; }
 .pin-tag { font-size: 0.7rem; color: var(--accent-purple); font-weight: bold; display: block; margin-bottom: 5px; }
 
-/* Modal & Dropdown */
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
 .modal-overlay.active { display: flex; }
-.modal-content { background: var(--sidebar-bg); width: 90%; max-width: 600px; border-radius: 20px; padding: 1.5rem; position: relative; }
+.modal-content { background: var(--sidebar-bg); width: 90%; max-width: 600px; border-radius: 20px; padding: 1.5rem; }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-.modal-title-input { background: transparent; border: none; color: white; font-size: 1.5rem; outline: none; width: 70%; }
-.modal-actions { display: flex; align-items: center; gap: 10px; }
+.modal-title-input { background: transparent; border: none; color: white; font-size: 1.5rem; outline: none; width: 60%; }
+.modal-actions { display: flex; gap: 15px; }
 .icon-btn { background: transparent; border: none; color: white; cursor: pointer; font-size: 1.2rem; }
-
-.dropdown { position: relative; }
-.dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0; top: 30px;
-    background: #2d3748;
-    min-width: 160px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-    z-index: 1001;
-    border-radius: 8px;
-    overflow: hidden;
-}
-.dropdown.active .dropdown-content { display: block; }
-.dropdown-content button { color: white; padding: 12px 16px; border: none; background: transparent; width: 100%; text-align: left; cursor: pointer; }
-.dropdown-content button:hover { background: rgba(139, 92, 246, 0.2); }
-.dropdown-content .delete-text { color: #feb2b2; }
+.delete-icon:hover { color: #ef4444; }
 
 .modal-body textarea { width: 100%; min-height: 300px; background: transparent; border: none; color: white; font-size: 1.1rem; outline: none; resize: none; }
 .btn-save { background: var(--accent-purple); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 10px; cursor: pointer; float: right; }

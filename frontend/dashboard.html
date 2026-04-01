@@ -13,7 +13,6 @@
         <ul class="nav-links">
             <li class="active" id="viewAll"><span>📂</span> All Notes</li>
             <li id="viewPinned"><span>📌</span> Pinned</li>
-            <li id="viewTrash"><span>🗑️</span> Trash</li>
         </ul>
         <button id="newNoteBtn" class="new-note-btn">+ Create New Note</button>
     </aside>
@@ -38,13 +37,8 @@
             <div class="modal-header">
                 <input type="text" id="modalTitle" placeholder="Title" class="modal-title-input">
                 <div class="modal-actions">
-                    <div class="dropdown" id="menuDropdown">
-                        <button id="menuBtn" class="icon-btn">⋮</button>
-                        <div class="dropdown-content">
-                            <button id="pinNoteBtn">📌 Pin Note</button>
-                            <button id="deleteNoteBtn" class="delete-text">🗑️ Move to Trash</button>
-                        </div>
-                    </div>
+                    <button id="pinNoteBtn" class="icon-btn" title="Pin Note">📌</button>
+                    <button id="deleteNoteBtn" class="icon-btn delete-icon" title="Delete Forever">🗑️</button>
                     <button id="closeModalBtn" class="icon-btn">✕</button>
                 </div>
             </div>
