@@ -12,8 +12,11 @@ const searchInput = document.getElementById("searchInput");
 const newNoteBtn = document.getElementById("newNoteBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const noteModal = document.getElementById("noteModal");
+const menuBtn = document.getElementById("menuBtn");
+const dropdownMenu = document.getElementById("dropdownMenu");
 const pinNoteBtn = document.getElementById("pinNoteBtn");
 const deleteNoteBtn = document.getElementById("deleteNoteBtn");
+
 document.getElementById("viewAll").onclick = () => { currentFilter = 'all'; updateActiveNav("viewAll"); renderNotes(); };
 document.getElementById("viewPinned").onclick = () => { currentFilter = 'pinned'; updateActiveNav("viewPinned"); renderNotes(); };
 
@@ -33,12 +36,10 @@ async function fetchNotes() {
 function renderNotes() {
     notesGrid.innerHTML = "";
     const query = searchInput.value.toLowerCase();
-    
     const filtered = allNotes.filter(n => {
         const matchesSearch = (n.title && n.title.toLowerCase().includes(query)) || n.content.toLowerCase().includes(query);
         if (!matchesSearch) return false;
-        if (currentFilter === 'pinned') return n.isPinned;
-        return true; 
+        return currentFilter === 'pinned' ? n.isPinned : true;
     });
 
     filtered.forEach(note => {
@@ -55,17 +56,31 @@ function openModal(note = null) {
     currentNoteId = note ? note._id : null;
     document.getElementById("modalTitle").value = note ? note.title || "" : "";
     document.getElementById("modalContent").value = note ? note.content : "";
+    dropdownMenu.style.display = "none";
     
-    deleteNoteBtn.style.display = note ? "block" : "none";
-    pinNoteBtn.style.display = note ? "block" : "none";
-    pinNoteBtn.style.color = (note && note.isPinned) ? "var(--accent-purple)" : "white";
-    
+    const menuContainer = document.getElementById("menuContainer");
+    if(!note) {
+        menuContainer.style.visibility = "hidden";
+    } else {
+        menuContainer.style.visibility = "visible";
+        pinNoteBtn.style.color = note.isPinned ? "#8b5cf6" : "white";
+    }
     noteModal.classList.add("active");
 }
+
+menuBtn.onclick = (e) => {
+    e.stopPropagation();
+    dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+};
+
+window.onclick = (event) => {
+    if (!event.target.matches('#menuBtn')) dropdownMenu.style.display = "none";
+};
+
 document.getElementById("saveNoteBtn").onclick = async () => {
     const title = document.getElementById("modalTitle").value;
     const content = document.getElementById("modalContent").value;
-    if(!content) return alert("Kuch toh likho bhai!");
+    if(!content) return alert("Empty note?");
 
     const method = currentNoteId ? "PUT" : "POST";
     const url = currentNoteId ? `${API_URL}/${currentNoteId}` : API_URL;
@@ -78,9 +93,10 @@ document.getElementById("saveNoteBtn").onclick = async () => {
     noteModal.classList.remove("active");
     fetchNotes();
 };
+
 deleteNoteBtn.onclick = async () => {
     if (!currentNoteId) return;
-    if (!confirm("Sure to delete")) return;
+    if (!confirm("Delete permanently?")) return;
 
     await fetch(`${API_URL}/${currentNoteId}`, {
         method: "DELETE",
